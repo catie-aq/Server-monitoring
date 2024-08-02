@@ -8,6 +8,8 @@ The docker network is defined in another docker-compose (gaaspard).
 Grafana and the other components may not directly be available on the internet, you 
 need to publish the ports or use a reverse proxy. 
 
+Use port forwarding to access the Grafana interface.
+
 ## How to use
 
 At first launch, set the password in Grafana and save it. 

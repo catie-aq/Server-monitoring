@@ -1,0 +1,47 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: varlogs
+        __path__: /var/log/*log
+
+
+  - job_name: dolibarr
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: dolibarr
+          __path__: /var/log/dolibarr/dolibarr.log
+
+    pipeline_stages:
+      # 1) On découpe la ligne en champs nommés
+      - regex:
+          expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s+(?P<level>\S+)\s+(?P<ip>\S+)\s+(?P<pid>\d+)\s+(?P<msg>.*)$'
+
+      # 2) On transforme ts en timestamp Loki
+      - timestamp:
+          source: ts
+          format: '2006-01-02 15:04:05'
+
+      # 3) On crée des labels Loki sur level, ip, pid
+      - labels:
+          level:
+          ip:
+          pid:
+
+      # 4) On remplace la ligne brute par le msg extrait (optionnel)
+      - output:
+          source: msg

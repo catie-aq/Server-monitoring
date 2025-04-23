@@ -41,7 +41,7 @@ services:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes: 
       - "/:/rootfs"
       - "/var/run:/var/run"
@@ -57,12 +57,38 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - '3033:3000'
+      - '3035:3000'
     depends_on:
       - prometheus
+      - loki
     restart: always
     networks:
       - gaaspard-main
+
+
+
+  # loki:
+  #   image: grafana/loki:latest
+  #   container_name: loki
+  #   command: -config.file=/etc/loki/local-config.yaml
+  #   ports:
+  #     - '3100:3100'
+  #   volumes:
+  #     - ./loki-local-config.yaml:/etc/loki/local-config.yaml
+  #   networks:
+  #     - gaaspard-main
+
+  # promtail:
+  #   image: grafana/promtail:latest
+  #   container_name: promtail
+  #   volumes:
+  #     - ./promtail-config.yaml:/etc/promtail/config.yaml
+  #     # on monte en lecture seule le dossier hébergeant votre log Dolibarr
+  #     - ../gaaspard/dolibarr_logs:/var/log/dolibarr:ro
+  #   depends_on:
+  #     - loki
+  #   networks:
+  #     - gaaspard-main
 
 volumes:
   prometheus_data: {}
